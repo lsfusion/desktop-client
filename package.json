@@ -1,0 +1,28 @@
+{
+  "name": "desktop-client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsfusion/desktop-client.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lsfusion/desktop-client/issues"
+  },
+  "homepage": "https://github.com/lsfusion/desktop-client#readme",
+  "devDependencies": {
+    "electron": "^36.2.1"
+  },
+  "dependencies": {
+    "pdf-to-printer": "^5.6.0",
+    "pdfkit": "^0.17.1",
+    "serialport": "^13.0.0"
+  }
+}

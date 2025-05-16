@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Desktop Client lsFusion (Electron)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="top-hover-zone" id="hoverZone"></div>
+<div class="toolbar" id="toolbar">
+    <input type="text" id="urlInput" placeholder="Enter URL and press Enter" list="url-history"/>
+    <datalist id="url-history"></datalist>
+</div>
+
+<webview id="webview" webpreferences="contextIsolation=no, nodeIntegration=yes" devtools></webview>
+
+<script>
+    const webview = document.getElementById('webview');
+    const urlInput = document.getElementById('urlInput');
+    const urlHistoryList = document.getElementById('url-history');
+    const toolbar = document.getElementById('toolbar');
+    const hoverZone = document.getElementById('hoverZone');
+
+    let urlHistory = JSON.parse(localStorage.getItem('urlHistory')) || [];
+
+    function updateUrlHistory() {
+        urlHistoryList.innerHTML = '';
+        urlHistory.forEach(url => {
+            const option = document.createElement('option');
+            option.value = url;
+            urlHistoryList.appendChild(option);
+        });
+    }
+
+    const lastUrl = localStorage.getItem('lastUrl');
+    if (lastUrl) {
+        webview.setAttribute('src', lastUrl);
+        urlInput.value = lastUrl;
+    } else {
+        webview.setAttribute('src', 'http://127.0.0.1:8888/main');
+    }
+
+    /*  webview.addEventListener('dom-ready', () => {
+        webview.openDevTools();
+      });*/
+
+    function loadPage() {
+        let url = urlInput.value.trim();
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            url = 'http://' + url;
+        }
+
+        if (!urlHistory.includes(url)) {
+            urlHistory.unshift(url);
+            if (urlHistory.length > 10) {
+                urlHistory.pop();
+            }
+            localStorage.setItem('urlHistory', JSON.stringify(urlHistory));
+        }
+
+        webview.setAttribute('src', url);
+        localStorage.setItem('lastUrl', url);
+        updateUrlHistory();
+    }
+
+    urlInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            loadPage();
+        }
+    });
+
+    webview.addEventListener('did-navigate', (event) => {
+        urlInput.value = event.url;
+        localStorage.setItem('lastUrl', event.url);
+        if (!urlHistory.includes(event.url)) {
+            urlHistory.unshift(event.url);
+            if (urlHistory.length > 10) {
+                urlHistory.pop();
+            }
+            localStorage.setItem('urlHistory', JSON.stringify(urlHistory));
+        }
+        updateUrlHistory();
+    });
+
+    webview.addEventListener('did-navigate-in-page', (event) => {
+        urlInput.value = event.url;
+        localStorage.setItem('lastUrl', event.url);
+        if (!urlHistory.includes(event.url)) {
+            urlHistory.unshift(event.url);
+            if (urlHistory.length > 10) {
+                urlHistory.pop();
+            }
+            localStorage.setItem('urlHistory', JSON.stringify(urlHistory));
+        }
+        updateUrlHistory();
+    });
+
+    updateUrlHistory();
+
+    function showToolbar() {
+        toolbar.classList.add('visible');
+    }
+
+    function hideToolbar() {
+        toolbar.classList.remove('visible');
+    }
+
+    hoverZone.addEventListener('mouseenter', showToolbar);
+    toolbar.addEventListener('mouseenter', showToolbar);
+    toolbar.addEventListener('mouseleave', hideToolbar);
+
+    const {ipcRenderer} = require('electron');
+    ipcRenderer.on('headers-checked', (event, data) => {
+        if (!data.isAllowed) {
+            webview.src = 'restricted.html';
+        }
+    });
+
+</script>
+</body>
+</html>
