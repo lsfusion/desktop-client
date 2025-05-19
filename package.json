@@ -4,8 +4,36 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder"
   },
+  "build": {
+    "appId": "org.lsfusion.desktop",
+    "productName": "Desktop Client lsFusion",
+    "files": [
+      "**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "extraResources": [
+      "logo.png",
+      "restricted.html"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  },
+
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lsfusion/desktop-client.git"
@@ -18,7 +46,8 @@
   },
   "homepage": "https://github.com/lsfusion/desktop-client#readme",
   "devDependencies": {
-    "electron": "^36.2.1"
+    "electron": "^36.2.1",
+    "electron-builder": "^26.0.12"
   },
   "dependencies": {
     "pdf-to-printer": "^5.6.0",
